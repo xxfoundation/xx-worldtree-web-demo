@@ -16,8 +16,8 @@ const xxdk = require("xxdk-wasm");
 // XXContext is used to pass in "XXDKUtils", which
 // provides access to all xx network functions to the children
 
-const XXContext = createContext<XXDKUtils | null>(null);
-const XXNet = createContext<CMix | null>(null);
+export const XXContext = createContext<XXDKUtils | null>(null);
+export const XXNet = createContext<CMix | null>(null);
 export function XXNetwork({ children }: { children: React.ReactNode }) {
   const [XXDKUtils, setXXDKUtils] = useState<XXDKUtils | null>(null);
   const [XXCMix, setXXCMix] = useState<CMix | null>(null);
@@ -31,6 +31,7 @@ export function XXNetwork({ children }: { children: React.ReactNode }) {
     // Then override with this function here:
     xxdk.setXXDKBasePath(window!.location.href + "xxdk-wasm");
     xxdk.InitXXDK().then(async (xx: XXDKUtils) => {
+      console.log("WTTGGGGG");
       setXXDKUtils(xx);
 
       // Now set up cMix, while other examples download

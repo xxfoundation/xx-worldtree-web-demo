@@ -1,8 +1,7 @@
 "use client";
 import { z } from "zod";
 import { useCallback, useContext, useState } from "react";
-import { XXContext, XXNet, XXNetwork } from "./xxdk";
-import IdentityCommitmentForm from "./IdentityCommitmentForm";
+import { XXContext, XXNet } from "./xxdk";
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -20,7 +19,7 @@ const jsonStringSchema = z.string().refine((data) => {
   }
 });
 
-export default function Home() {
+export default function IdentityCommitmentForm() {
   const utils = useContext(XXContext);
   const cmix = useContext(XXNet);
   const [identity, setIdentity] = useState<string | null>(null);
@@ -61,10 +60,26 @@ export default function Home() {
   }, [identity, utils, cmix]);
 
   return (
-    <XXNetwork>
-      <main className="min-h-screen p-10">
-        <IdentityCommitmentForm />
-      </main>
-    </XXNetwork>
+    <form>
+      <div className="space-y-3">
+        <label htmlFor="identity-commitment" className="text-lg font-bold">
+          Identity Commitment
+        </label>
+        <textarea
+          id="identity-commitment"
+          className="w-full h-96 p-2 bg-zinc-950"
+          placeholder={`{"identityCommitment": "0x301797..."}`}
+          onChange={(e) => {
+            setIdentity(e.target.value);
+          }}
+        ></textarea>
+        <p className="text-red-500">{error}</p>
+      </div>
+      <div className="mt-10">
+        <button onClick={onSubmit} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Send
+        </button>
+      </div>
+    </form>
   );
 }
