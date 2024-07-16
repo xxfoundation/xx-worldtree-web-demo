@@ -31,7 +31,6 @@ export function XXNetwork({ children }: { children: React.ReactNode }) {
     // Then override with this function here:
     xxdk.setXXDKBasePath(window!.location.href + "xxdk-wasm");
     xxdk.InitXXDK().then(async (xx: XXDKUtils) => {
-      console.log("WTTGGGGG");
       setXXDKUtils(xx);
 
       // Now set up cMix, while other examples download

@@ -30,34 +30,31 @@ export default function IdentityCommitmentForm() {
     console.log("onRpcEvent called -> data: " + msg);
   };
 
-  const onSubmit = useCallback(async () => {
-    setError(null);
-    const parsed = jsonStringSchema.safeParse(identity);
+  const onSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setError(null);
+      const parsed = jsonStringSchema.safeParse(identity);
 
-    if (parsed.error) {
-      return setError("Wrong format for identity commitment");
-    }
+      if (parsed.error) {
+        return setError("Wrong format for identity commitment");
+      }
 
-    try {
-      console.log(
-        cmix?.GetID()!,
-        utils?.Base64ToUint8Array("uIllxXDkCOHgqONA7BjDPRPQ6nRG2X6nafenDHJUracD"),
-        utils?.Base64ToUint8Array("fUkOFf4ys1TI42OcA4pn8cqlWagRIfMGcXmJIRR69/E="),
-        encoder.encode(identity!),
-        onRpcEvent
-      );
-      await utils?.RPCSend(
-        cmix?.GetID()!,
-        utils.Base64ToUint8Array("uIllxXDkCOHgqONA7BjDPRPQ6nRG2X6nafenDHJUracD"),
-        utils.Base64ToUint8Array("fUkOFf4ys1TI42OcA4pn8cqlWagRIfMGcXmJIRR69/E="),
-        encoder.encode(identity!),
-        onRpcEvent
-      );
-    } catch (e) {
-      console.error(e);
-      setError("Something went wrong sending the cmix message");
-    }
-  }, [identity, utils, cmix]);
+      try {
+        await utils?.RPCSend(
+          cmix?.GetID()!,
+          utils.Base64ToUint8Array("uIllxXDkCOHgqONA7BjDPRPQ6nRG2X6nafenDHJUracD"),
+          utils.Base64ToUint8Array("fUkOFf4ys1TI42OcA4pn8cqlWagRIfMGcXmJIRR69/E="),
+          encoder.encode(identity!),
+          onRpcEvent
+        );
+      } catch (e) {
+        console.error(e);
+        setError("Something went wrong sending the cmix message");
+      }
+    },
+    [identity, utils, cmix]
+  );
 
   return (
     <form>
