@@ -3,6 +3,8 @@ import { z } from "zod";
 import { useCallback, useContext, useState } from "react";
 import { XXContext, XXNet } from "./xxdk";
 
+import Spinner from "@/components/Spinner";
+
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
@@ -19,15 +21,50 @@ const jsonStringSchema = z.string().refine((data) => {
   }
 });
 
+const rpcEventSchema = z.union([
+  z.object({
+    type: z.literal("SentMessage"),
+  }),
+  z.object({
+    type: z.literal("RoundResults"),
+  }),
+  z.object({
+    type: z.literal("QueryResponse"),
+    response: z.object({
+      message: z.string(),
+    }),
+  }),
+]);
+
 export default function IdentityCommitmentForm() {
+  const [state, setState] = useState<"Idle" | "Sending" | "Sent. Waiting for response..." | "Processing">("Idle");
   const utils = useContext(XXContext);
   const cmix = useContext(XXNet);
   const [identity, setIdentity] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<string | null>(null);
 
   const onRpcEvent = (data: Uint8Array) => {
     const msg = decoder.decode(data);
-    console.log("onRpcEvent called -> data: " + msg);
+
+    const parsed = rpcEventSchema.safeParse(JSON.parse(msg));
+
+    if (parsed.error) {
+      setError("Received an unexpected message");
+    }
+
+    if (parsed.data?.type === "SentMessage") {
+      setState("Sent. Waiting for response...");
+    }
+
+    if (parsed.data?.type === "RoundResults") {
+      setState("Processing");
+    }
+
+    if (parsed.data?.type === "QueryResponse") {
+      setState("Idle");
+      setResult(parsed.data.response.message);
+    }
   };
 
   const onSubmit = useCallback(
@@ -41,6 +78,7 @@ export default function IdentityCommitmentForm() {
       }
 
       try {
+        setState("Sending");
         await utils?.RPCSend(
           cmix?.GetID()!,
           utils.Base64ToUint8Array("uIllxXDkCOHgqONA7BjDPRPQ6nRG2X6nafenDHJUracD"),
@@ -72,11 +110,36 @@ export default function IdentityCommitmentForm() {
         ></textarea>
         <p className="text-red-500">{error}</p>
       </div>
-      <div className="mt-10">
-        <button onClick={onSubmit} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+      <div className="mt-4">
+        <button
+          disabled={state !== "Idle"}
+          onClick={onSubmit}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
           Send
         </button>
       </div>
+      {state !== "Idle" && (
+        <div className="mt-4">
+          <Spinner size="lg" />
+          <p className="text-center">{state}</p>
+        </div>
+      )}
+      {result && (
+        <div className="mt-4">
+          {" "}
+          <pre className="mt-10 bg-zinc-950 p-4 break-all w-full whitespace-pre-wrap">{result}</pre>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              navigator.clipboard.writeText(result!);
+            }}
+            className="bg-gray-500 mt-4 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Copy Result
+          </button>
+        </div>
+      )}
     </form>
   );
 }

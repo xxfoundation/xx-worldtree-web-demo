@@ -11,6 +11,7 @@ import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 import Dexie from "dexie";
 import { DBConversation, DBDirectMessage } from "xxdk-wasm/dist/src/types/db";
+import Spinner from "@/components/Spinner";
 const xxdk = require("xxdk-wasm");
 
 // XXContext is used to pass in "XXDKUtils", which
@@ -52,6 +53,10 @@ export function XXNetwork({ children }: { children: React.ReactNode }) {
         localStorage.setItem("cMixInitialized", "true");
       }
       xx.LoadCmix(statePath, secret, cMixParamsJSON).then((net: CMix) => {
+        // Once all of our clients are loaded we can start
+        // listening to the network
+        net.StartNetworkFollower(10000);
+        net.WaitForNetwork(30000);
         setXXCMix(net);
       });
     });
@@ -59,7 +64,16 @@ export function XXNetwork({ children }: { children: React.ReactNode }) {
 
   return (
     <XXContext.Provider value={XXDKUtils}>
-      <XXNet.Provider value={XXCMix}>{children}</XXNet.Provider>
+      <XXNet.Provider value={XXCMix}>
+        {!XXCMix ? (
+          <div className="bg-black h-screen w-screen mt-0 fixed top-0 flex flex-col justify-center">
+            <Spinner size="lg" />
+            <p className="text-center mt-4">Connecting...</p>
+          </div>
+        ) : (
+          children
+        )}
+      </XXNet.Provider>
     </XXContext.Provider>
   );
 }
