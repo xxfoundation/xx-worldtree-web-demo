@@ -164,29 +164,32 @@ export default function IdentityCommitmentForm() {
           Send
         </button>
       </div>
-      {roundUrl && <div className="mt-4">Round processed: </div>}
       {state !== "Idle" && (
         <div className="mt-4">
           <Spinner size="lg" />
           <p className="text-center">{state}</p>
         </div>
       )}
-      {result && (
+      {(result || roundUrl) && (
         <div className="mt-4">
           <h3 className="mt-10 text-3xl font-semibold">Results</h3>{" "}
           <a href={roundUrl ?? "#"} target="_blank" rel="noopener" className="text-blue-500 hover:underline">
             View Round
           </a>
-          <pre className=" mt-4 bg-zinc-950 p-4 break-all w-full whitespace-pre-wrap">{result}</pre>
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              navigator.clipboard.writeText(result!);
-            }}
-            className="bg-gray-500 mt-4 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Copy Result
-          </button>
+          {result && (
+            <>
+              <pre className=" mt-4 bg-zinc-950 p-4 break-all w-full whitespace-pre-wrap">{result}</pre>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigator.clipboard.writeText(result!);
+                }}
+                className="bg-gray-500 mt-4 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Copy Result
+              </button>
+            </>
+          )}
         </div>
       )}
     </form>
