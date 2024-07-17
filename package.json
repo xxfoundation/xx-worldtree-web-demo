@@ -15,6 +15,7 @@
     "@nextui-org/react": "^2.2.10",
     "@nextui-org/system": "^2.0.15",
     "@nextui-org/theme": "^2.1.18",
+    "classnames": "^2.5.1",
     "console-feed": "^3.5.0",
     "dexie": "^3.2.6",
     "framer-motion": "^11.0.8",

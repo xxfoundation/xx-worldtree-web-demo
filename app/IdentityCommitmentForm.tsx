@@ -21,12 +21,41 @@ const jsonStringSchema = z.string().refine((data) => {
   }
 });
 
+const RoundSchema = z.object({
+  ID: z.number(),
+  UpdateID: z.number(),
+  State: z.number(),
+  BatchSize: z.number(),
+  Topology: z.array(z.string()),
+  Timestamps: z.array(z.union([z.number(), z.bigint()])),
+  ResourceQueueTimeoutMillis: z.number(),
+  AddressSpaceSize: z.number(),
+  EccSignature: z.object({
+    Nonce: z.string(),
+    Signature: z.string(),
+  }),
+});
+
+const ResultsSchema = z.record(
+  z.object({
+    Status: z.number(),
+    Round: RoundSchema,
+  })
+);
+
+const RoundResultsSchema = z.object({
+  success: z.boolean(),
+  timedOut: z.boolean(),
+  results: ResultsSchema,
+});
+
 const rpcEventSchema = z.union([
   z.object({
     type: z.literal("SentMessage"),
   }),
   z.object({
     type: z.literal("RoundResults"),
+    response: RoundResultsSchema,
   }),
   z.object({
     type: z.literal("QueryResponse"),
@@ -43,6 +72,7 @@ export default function IdentityCommitmentForm() {
   const [identity, setIdentity] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
+  const [roundUrl, setRoundUrl] = useState<string | null>(null);
 
   const onRpcEvent = (data: Uint8Array) => {
     const msg = decoder.decode(data);
@@ -59,11 +89,25 @@ export default function IdentityCommitmentForm() {
 
     if (parsed.data?.type === "RoundResults") {
       setState("Processing");
+      const [roundId] = Object.entries(parsed.data.response.results)?.[0];
+      setRoundUrl(`https://dashboard.xx.network/rounds/${roundId}`);
     }
 
     if (parsed.data?.type === "QueryResponse") {
       setState("Idle");
-      setResult(JSON.stringify(parsed.data, null, 2));
+      setResult(
+        JSON.stringify(
+          {
+            ...parsed.data,
+            response: {
+              ...parsed.data.response,
+              message: JSON.parse(atob(parsed.data.response.message)),
+            },
+          },
+          null,
+          2
+        )
+      );
     }
   };
 
@@ -120,6 +164,7 @@ export default function IdentityCommitmentForm() {
           Send
         </button>
       </div>
+      {roundUrl && <div className="mt-4">Round processed: </div>}
       {state !== "Idle" && (
         <div className="mt-4">
           <Spinner size="lg" />
@@ -129,6 +174,9 @@ export default function IdentityCommitmentForm() {
       {result && (
         <div className="mt-4">
           <h3 className="mt-10 text-3xl font-semibold">Results</h3>{" "}
+          <a href={roundUrl ?? "#"} target="_blank" rel="noopener" className="text-blue-500 hover:underline">
+            View Round
+          </a>
           <pre className=" mt-4 bg-zinc-950 p-4 break-all w-full whitespace-pre-wrap">{result}</pre>
           <button
             onClick={(e) => {
