@@ -63,7 +63,7 @@ export default function IdentityCommitmentForm() {
 
     if (parsed.data?.type === "QueryResponse") {
       setState("Idle");
-      setResult(parsed.data.response.message);
+      setResult(JSON.stringify(parsed.data, null, 2));
     }
   };
 
@@ -87,6 +87,7 @@ export default function IdentityCommitmentForm() {
           onRpcEvent
         );
       } catch (e) {
+        setState("Idle");
         console.error(e);
         setError("Something went wrong sending the cmix message");
       }
@@ -127,8 +128,8 @@ export default function IdentityCommitmentForm() {
       )}
       {result && (
         <div className="mt-4">
-          {" "}
-          <pre className="mt-10 bg-zinc-950 p-4 break-all w-full whitespace-pre-wrap">{result}</pre>
+          <h3 className="mt-10 text-3xl font-semibold">Results</h3>{" "}
+          <pre className=" mt-4 bg-zinc-950 p-4 break-all w-full whitespace-pre-wrap">{result}</pre>
           <button
             onClick={(e) => {
               e.preventDefault();
