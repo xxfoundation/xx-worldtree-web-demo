@@ -1,6 +1,6 @@
 {
-  "name": "xxdk-example",
-  "version": "0.1.0",
+  "name": "xx-worldtree-web-demo",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
