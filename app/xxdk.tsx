@@ -5,7 +5,7 @@ import Spinner from "@/components/Spinner";
 
 import XXNDF from "./ndf.json";
 import { CMix, XXDKUtils } from "xxdk-wasm/dist/src";
-import xxdk = require("xxdk-wasm");
+const xxdk = require("xxdk-wasm");
 
 // XXContext is used to pass in "XXDKUtils", which
 // provides access to all xx network functions to the children
