@@ -23,6 +23,3 @@ yarn-error.log*
 
 # Build files
 out/
-
-# This app builds to public
-public/
