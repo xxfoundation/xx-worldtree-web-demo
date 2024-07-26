@@ -59,10 +59,13 @@ export function XXNetwork({ children }: { children: React.ReactNode }) {
     <XXContext.Provider value={XXDKUtils}>
       <XXNet.Provider value={XXCMix}>
         {!XXCMix ? (
-          <div className="bg-black h-screen w-screen mt-0 fixed top-0 flex flex-col justify-center">
+          <main className="min-h-screen p-10">
+
+          <div className="h-screen w-screen mt-0 fixed top-0 flex flex-col justify-center">
             <Spinner size="lg" />
             <p className="text-center mt-4">Connecting...</p>
           </div>
+          </main>
         ) : (
           children
         )}

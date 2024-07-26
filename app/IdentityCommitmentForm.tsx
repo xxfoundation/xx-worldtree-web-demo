@@ -234,7 +234,7 @@ export default function IdentityCommitmentForm() {
           type="text"
           id="identity-commitment"
           name="identity-commitment"
-          className="flex-grow p-2 bg-zinc-950 border-1"
+          className="flex-grow p-2 border-1 dark:text-black"
           defaultValue={identity}
           onChange={(e) => {
             setIdentity(e.target.value);
@@ -301,7 +301,7 @@ export default function IdentityCommitmentForm() {
               >
                 Copy Result
               </button>
-              <pre className=" mt-4 bg-zinc-950 p-4 break-all w-full h-1/4 border-1 overflow-auto">{result}</pre>
+              <pre className=" mt-4 p-4 break-all w-full h-1/4 border-1 overflow-auto">{result}</pre>
             </>
           )}
         </div>
